@@ -1,101 +1,76 @@
-from flask import Flask, jsonify, request, render_template
 import os
+from flask import Flask, jsonify, request, render_template
 import mysql.connector
 from mysql.connector import Error
 
 app = Flask(__name__)
 
-# חיבור ל-MySQL דרך משתני סביבה
+# חיבור למסד הנתונים
 try:
     db = mysql.connector.connect(
-        host=os.environ.get("DB_HOST", "localhost"),
-        user=os.environ.get("DB_USER", "root"),
-        password=os.environ.get("DB_PASS", ""),
-        database=os.environ.get("DB_NAME", "tasks_db")
+        host=os.getenv("MYSQL_HOST", "mysql"),
+        user=os.getenv("MYSQL_USER", "root"),
+        password=os.getenv("MYSQL_PASSWORD", "mypassword"),
+        database=os.getenv("MYSQL_DATABASE", "Healthy")
     )
     cursor = db.cursor(dictionary=True)
+    print("Database connected successfully!")
 except Error as e:
     print(f"Error connecting to MySQL: {e}")
     db = None
     cursor = None
 
-# יצירת טבלת משימות אם לא קיימת
-if db:
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tasks (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            done BOOLEAN NOT NULL DEFAULT FALSE
-        )
-    """)
-    db.commit()
-
-# דף הבית
+# דף הבית - מציג את המשימות
 @app.route("/")
 def index():
-    if not db:
-        return "Database not connected"
-    cursor.execute("SELECT * FROM tasks")
-    tasks = cursor.fetchall()
+    if cursor:
+        cursor.execute("SELECT * FROM tasks")
+        tasks = cursor.fetchall()
+    else:
+        tasks = []
     return render_template("index.html", tasks=tasks)
 
-# Health check
-@app.route("/health")
-def health():
-    if db:
-        try:
-            cursor.execute("SELECT 1")
-            return jsonify({"status": "OK", "database": "Healthy"})
-        except:
-            return jsonify({"status": "OK", "database": "Unhealthy"})
-    else:
-        return jsonify({"status": "OK", "database": "Unhealthy"})
-
-# קבלת כל המשימות
+# קבלת כל המשימות ב-JSON
 @app.route("/tasks", methods=["GET"])
 def get_tasks():
-    if not db:
-        return jsonify({"error": "Database not connected"}), 500
-    cursor.execute("SELECT * FROM tasks")
-    tasks = cursor.fetchall()
-    return jsonify(tasks)
+    if cursor:
+        cursor.execute("SELECT * FROM tasks")
+        tasks = cursor.fetchall()
+        return jsonify(tasks)
+    return jsonify({"error": "Database not connected"}), 500
 
 # יצירת משימה חדשה
 @app.route("/tasks", methods=["POST"])
 def add_task():
-    if not db:
-        return jsonify({"error": "Database not connected"}), 500
-    data = request.get_json()
-    if not data or "title" not in data:
-        return jsonify({"error": "Missing title"}), 400
-    cursor.execute("INSERT INTO tasks (title, done) VALUES (%s, %s)", (data["title"], False))
-    db.commit()
-    return jsonify({"id": cursor.lastrowid, "title": data["title"], "done": False}), 201
+    if cursor:
+        data = request.json
+        task_name = data.get("title")
+        done = data.get("done", False)
+        cursor.execute("INSERT INTO tasks (title, done) VALUES (%s, %s)", (task_name, done))
+        db.commit()
+        return jsonify({"message": "Task added!"}), 201
+    return jsonify({"error": "Database not connected"}), 500
 
 # עדכון משימה
-@app.route("/tasks/<int:task_id>", methods=["PUT", "PATCH"])
+@app.route("/tasks/<int:task_id>", methods=["PUT"])
 def update_task(task_id):
-    if not db:
-        return jsonify({"error": "Database not connected"}), 500
-    data = request.get_json()
-    cursor.execute("SELECT * FROM tasks WHERE id=%s", (task_id,))
-    task = cursor.fetchone()
-    if not task:
-        return jsonify({"error": "Task not found"}), 404
-    title = data.get("title", task["title"])
-    done = data.get("done", task["done"])
-    cursor.execute("UPDATE tasks SET title=%s, done=%s WHERE id=%s", (title, done, task_id))
-    db.commit()
-    return jsonify({"id": task_id, "title": title, "done": done})
+    if cursor:
+        data = request.json
+        done = data.get("done")
+        cursor.execute("UPDATE tasks SET done=%s WHERE id=%s", (done, task_id))
+        db.commit()
+        return jsonify({"message": "Task updated!"})
+    return jsonify({"error": "Database not connected"}), 500
 
 # מחיקת משימה
 @app.route("/tasks/<int:task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    if not db:
-        return jsonify({"error": "Database not connected"}), 500
-    cursor.execute("DELETE FROM tasks WHERE id=%s", (task_id,))
-    db.commit()
-    return jsonify({"message": "Task deleted"}), 200
+    if cursor:
+        cursor.execute("DELETE FROM tasks WHERE id=%s", (task_id,))
+        db.commit()
+        return jsonify({"message": "Task deleted!"})
+    return jsonify({"error": "Database not connected"}), 500
 
+# הפעלה
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
