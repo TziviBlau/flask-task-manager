@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   app:
@@ -7,19 +7,16 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - mysql
+      - mysql_db
     environment:
-      MYSQL_HOST: mysql
+      MYSQL_HOST: mysql_db
       MYSQL_USER: root
       MYSQL_PASSWORD: mypassword
       MYSQL_DATABASE: Healthy
-    volumes:
-      - .:/app
 
-  mysql:
+  mysql_db:
     image: mysql:8.0
-    container_name: mysql
-    restart: always
+    container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: mypassword
       MYSQL_DATABASE: Healthy
