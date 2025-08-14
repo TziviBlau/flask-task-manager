@@ -1,45 +1,49 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect
 import mysql.connector
+import os
+import time
 
 app = Flask(__name__)
 
-# פונקציה לחיבור לדטהבייס
+# חיבור לדטהבייס עם retries עד שה־DB מוכן
 def get_db_connection():
-    return mysql.connector.connect(
-        host="mysql_db",       # שם השירות של MySQL בקומפוז
-        user="root",
-        password="mypassword",
-        database="task_manager"
-    )
+    retries = 5
+    while retries > 0:
+        try:
+            conn = mysql.connector.connect(
+                host=os.environ.get('DB_HOST', 'localhost'),
+                user=os.environ.get('DB_USER', 'root'),
+                password=os.environ.get('DB_PASSWORD', ''),
+                database=os.environ.get('DB_NAME', 'task_manager')
+            )
+            return conn
+        except mysql.connector.Error as err:
+            print(f"Error connecting to MySQL: {err}")
+            retries -= 1
+            time.sleep(3)
+    raise Exception("Cannot connect to MySQL after several retries.")
 
-# עמוד ראשי -> מפנה לעמוד המשימות
 @app.route('/')
 def index():
-    return redirect(url_for('tasks'))
-
-# עמוד הצגת משימות
-@app.route('/tasks')
-def tasks():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM tasks")
-    all_tasks = cursor.fetchall()
+    tasks = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('tasks.html', tasks=all_tasks)
+    return render_template('index.html', tasks=tasks)
 
-# הוספת משימה
 @app.route('/add', methods=['POST'])
 def add_task():
-    task_name = request.form['task_name']
-    if task_name.strip() != "":
+    task_name = request.form.get('task_name')
+    if task_name:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("INSERT INTO tasks (name) VALUES (%s)", (task_name,))
         conn.commit()
         cursor.close()
         conn.close()
-    return redirect(url_for('tasks'))
+    return redirect('/')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
