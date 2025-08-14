@@ -1,5 +1,7 @@
+version: '3.9'
+
 services:
-  mysql_db:
+  db:
     image: mysql:8.0
     container_name: mysql_db
     restart: always
@@ -10,20 +12,21 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+      - ./db_init:/docker-entrypoint-initdb.d
 
-  flask-app:
+  app:
     build: .
     container_name: flask-task-manager-app
     restart: always
     ports:
       - "5000:5000"
-    depends_on:
-      - mysql_db
     environment:
-      MYSQL_HOST: mysql_db
-      MYSQL_USER: root
-      MYSQL_PASSWORD: mypassword
-      MYSQL_DATABASE: task_manager
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: mypassword
+      DB_NAME: task_manager
+    depends_on:
+      - db
 
 volumes:
   db_data:
