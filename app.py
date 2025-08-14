@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect
 import mysql.connector
+from mysql.connector import Error
 import os
 import time
 
 app = Flask(__name__)
 
-# --- פונקציות חיבור למסד הנתונים ---
+# פונקציה לקבלת חיבור לדאטהבייס
 def get_db_connection():
     retries = 5
     while retries > 0:
@@ -17,21 +18,21 @@ def get_db_connection():
                 database=os.environ.get("MYSQL_DATABASE", "task_manager")
             )
             return connection
-        except mysql.connector.Error as e:
+        except Error as e:
             print(f"Database connection failed: {e}, retrying...")
             retries -= 1
-            time.sleep(3)
+            time.sleep(2)
     raise Exception("Cannot connect to database after multiple retries")
 
+# יצירת טבלה אם היא לא קיימת
 def init_db():
     cnx = get_db_connection()
-    cursor = cnx.cursor(dictionary=True)
+    cursor = cnx.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             id INT AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
-            description TEXT,
-            completed BOOLEAN DEFAULT FALSE
+            description TEXT
         )
     """)
     cnx.commit()
@@ -40,66 +41,45 @@ def init_db():
 
 init_db()
 
-# --- מסלולים ---
-@app.route("/")
-def index():
+# עמוד הבית / הצגת משימות
+@app.route('/tasks')
+def tasks():
     cnx = get_db_connection()
     cursor = cnx.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM tasks ORDER BY id DESC")
-    tasks = cursor.fetchall()
+    cursor.execute("SELECT * FROM tasks")
+    tasks_list = cursor.fetchall()
     cursor.close()
     cnx.close()
-    return render_template("tasks.html", tasks=tasks)
+    return render_template('tasks.html', tasks=tasks_list)
 
-@app.route("/add", methods=["POST"])
+# הוספת משימה חדשה
+@app.route('/add', methods=['GET', 'POST'])
 def add_task():
-    title = request.form.get("title")
-    description = request.form.get("description")
-    if title:
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
         cnx = get_db_connection()
         cursor = cnx.cursor()
         cursor.execute("INSERT INTO tasks (title, description) VALUES (%s, %s)", (title, description))
         cnx.commit()
         cursor.close()
         cnx.close()
-    return redirect(url_for("index"))
+        return redirect('/tasks')
+    return render_template('add_task.html')
 
-@app.route("/delete/<int:task_id>", methods=["POST"])
+# מחיקת משימה
+@app.route('/delete/<int:task_id>', methods=['POST'])
 def delete_task(task_id):
-    cnx = get_db_connection()
-    cursor = cnx.cursor()
-    cursor.execute("DELETE FROM tasks WHERE id = %s", (task_id,))
-    cnx.commit()
-    cursor.close()
-    cnx.close()
-    return redirect(url_for("index"))
-
-@app.route("/edit/<int:task_id>", methods=["POST"])
-def edit_task(task_id):
-    title = request.form.get("title")
-    description = request.form.get("description")
-    cnx = get_db_connection()
-    cursor = cnx.cursor()
-    cursor.execute("UPDATE tasks SET title=%s, description=%s WHERE id=%s", (title, description, task_id))
-    cnx.commit()
-    cursor.close()
-    cnx.close()
-    return redirect(url_for("index"))
-
-@app.route("/toggle/<int:task_id>", methods=["POST"])
-def toggle_task(task_id):
-    cnx = get_db_connection()
-    cursor = cnx.cursor()
-    cursor.execute("SELECT completed FROM tasks WHERE id=%s", (task_id,))
-    result = cursor.fetchone()
-    if result:
-        new_status = not result[0]
-        cursor.execute("UPDATE tasks SET completed=%s WHERE id=%s", (new_status, task_id))
+    try:
+        cnx = get_db_connection()
+        cursor = cnx.cursor()
+        cursor.execute("DELETE FROM tasks WHERE id = %s", (task_id,))
         cnx.commit()
-    cursor.close()
-    cnx.close()
-    return redirect(url_for("index"))
+        cursor.close()
+        cnx.close()
+        return redirect('/tasks')
+    except Exception as e:
+        return f"Error deleting task: {e}"
 
-# --- הרצת האפליקציה ---
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
