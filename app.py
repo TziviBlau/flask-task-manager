@@ -1,23 +1,26 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template
 import mysql.connector
 import time
 
 app = Flask(__name__)
 
+DB_HOST = "mysql_db"
+DB_USER = "root"
+DB_PASSWORD = ""
+DB_NAME = "task_db"
+
 def get_db_connection():
-    retries = 10
-    while retries > 0:
+    for _ in range(15):
         try:
             cnx = mysql.connector.connect(
-                host="db",
-                user="root",
-                password="",  # אין סיסמה
-                database="task_manager"
+                host=DB_HOST,
+                user=DB_USER,
+                password=DB_PASSWORD,
+                database=DB_NAME
             )
             return cnx
         except mysql.connector.Error:
             print("DB not ready, waiting 2 seconds...")
-            retries -= 1
             time.sleep(2)
     raise Exception("Cannot connect to database after multiple retries")
 
@@ -27,7 +30,8 @@ def init_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL
+            title VARCHAR(255) NOT NULL,
+            completed BOOLEAN DEFAULT FALSE
         )
     """)
     cnx.commit()
@@ -37,23 +41,12 @@ def init_db():
 @app.route("/")
 def index():
     cnx = get_db_connection()
-    cursor = cnx.cursor()
+    cursor = cnx.cursor(dictionary=True)
     cursor.execute("SELECT * FROM tasks")
     tasks = cursor.fetchall()
     cursor.close()
     cnx.close()
     return render_template("index.html", tasks=tasks)
-
-@app.route("/add", methods=["POST"])
-def add_task():
-    task_name = request.form["name"]
-    cnx = get_db_connection()
-    cursor = cnx.cursor()
-    cursor.execute("INSERT INTO tasks (name) VALUES (%s)", (task_name,))
-    cnx.commit()
-    cursor.close()
-    cnx.close()
-    return redirect("/")
 
 if __name__ == "__main__":
     init_db()
