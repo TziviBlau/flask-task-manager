@@ -1,19 +1,23 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
+<head>
+    <meta charset="UTF-8">
     <title>Task Manager</title>
-  </head>
-  <body>
+</head>
+<body>
     <h1>Task Manager</h1>
-    <form action="/add" method="post">
-      <input type="text" name="task" placeholder="New task">
-      <button type="submit">Add Task</button>
+
+    <form action="/add" method="POST">
+        <input type="text" name="title" placeholder="Task title" required>
+        <input type="text" name="description" placeholder="Description">
+        <button type="submit">Add Task</button>
     </form>
+
+    <h2>Tasks</h2>
     <ul>
-      {% for task in tasks %}
-        <li>{{ task.name }}</li>
-      {% endfor %}
+        {% for task in tasks %}
+            <li>{{ task.title }} - {{ task.description }}</li>
+        {% endfor %}
     </ul>
-  </body>
+</body>
 </html>
