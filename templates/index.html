@@ -3,59 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <title>Task Manager</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        input { padding: 5px; width: 300px; }
-        button { padding: 5px 10px; margin-left: 5px; }
-        li.done { text-decoration: line-through; color: gray; }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Task Manager</h1>
-    <input type="text" id="new-task" placeholder="New task title">
-    <button onclick="addTask()">Add Task</button>
-    <ul id="tasks"></ul>
+    <div class="container">
+        <h1>Task Manager</h1>
+
+        <form id="taskForm">
+            <input type="text" id="taskInput" placeholder="Enter new task" required>
+            <button type="submit">Add Task</button>
+        </form>
+
+        <ul id="taskList"></ul>
+    </div>
 
     <script>
+        const taskList = document.getElementById("taskList");
+        const taskForm = document.getElementById("taskForm");
+        const taskInput = document.getElementById("taskInput");
+
         async function fetchTasks() {
-            const res = await fetch('/tasks');
+            const res = await fetch("/tasks");
             const tasks = await res.json();
-            const ul = document.getElementById('tasks');
-            ul.innerHTML = '';
-            tasks.forEach(task => {
-                const li = document.createElement('li');
-                li.textContent = task.title;
-                li.className = task.done ? 'done' : '';
-                li.onclick = () => markDone(task.id);
-                const delBtn = document.createElement('button');
-                delBtn.textContent = 'Delete';
-                delBtn.onclick = (e) => { e.stopPropagation(); deleteTask(task.id); };
-                li.appendChild(delBtn);
-                ul.appendChild(li);
+            taskList.innerHTML = "";
+            tasks.forEach(task => addTaskToDOM(task));
+        }
+
+        function addTaskToDOM(task) {
+            const li = document.createElement("li");
+            li.dataset.id = task.id;
+            li.className = task.done ? "done" : "";
+            li.innerHTML = `
+                <span>${task.title}</span>
+                <span>
+                    <button class="toggleBtn">${task.done ? "Undo" : "Done"}</button>
+                    <button class="deleteBtn">Delete</button>
+                </span>
+            `;
+            taskList.appendChild(li);
+
+            li.querySelector(".toggleBtn").addEventListener("click", async () => {
+                await fetch(`/tasks/${task.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ done: !task.done })
+                });
+                fetchTasks();
+            });
+
+            li.querySelector(".deleteBtn").addEventListener("click", async () => {
+                await fetch(`/tasks/${task.id}`, { method: "DELETE" });
+                fetchTasks();
             });
         }
 
-        async function addTask() {
-            const title = document.getElementById('new-task').value;
-            if (!title) return alert('Enter a task title');
-            await fetch('/tasks', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+        taskForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const title = taskInput.value.trim();
+            if (!title) return;
+            await fetch("/tasks", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ title })
             });
-            document.getElementById('new-task').value = '';
+            taskInput.value = "";
             fetchTasks();
-        }
-
-        async function markDone(id) {
-            await fetch(`/tasks/${id}`, { method: 'PUT' });
-            fetchTasks();
-        }
-
-        async function deleteTask(id) {
-            await fetch(`/tasks/${id}`, { method: 'DELETE' });
-            fetchTasks();
-        }
+        });
 
         fetchTasks();
     </script>
