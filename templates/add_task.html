@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Task</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        form { max-width: 400px; }
+        label { display: block; margin-top: 10px; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; }
+        button { margin-top: 15px; padding: 10px 15px; background-color: green; color: white; border: none; cursor: pointer; }
+        a { display: inline-block; margin-top: 15px; text-decoration: none; color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Add New Task</h1>
+    <form method="POST">
+        <label>Title:</label>
+        <input type="text" name="title" required>
+        <label>Description:</label>
+        <textarea name="description"></textarea>
+        <button type="submit">Add Task</button>
+    </form>
+    <a href="/tasks">Back to Tasks</a>
+</body>
+</html>
