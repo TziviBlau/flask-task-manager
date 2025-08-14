@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Tasks</title>
+</head>
+<body>
+    <h1>All Tasks</h1>
+    <ul>
+        {% for task in tasks %}
+            <li>{{ task.name }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('index') }}">Add New Task</a>
+</body>
+</html>
