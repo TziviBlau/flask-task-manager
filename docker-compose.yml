@@ -1,29 +1,32 @@
-version: "3.9"
-
 services:
-  mysql_db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: tasks_db
-      MYSQL_USER: root
-      MYSQL_PASSWORD: rootpassword
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      interval: 5s
-      retries: 5
-
   app:
     build: .
+    container_name: flask-task-manager-app
     ports:
       - "5000:5000"
     depends_on:
-      mysql_db:
-        condition: service_healthy
+      - mysql_db
     environment:
+      FLASK_ENV: development
       MYSQL_HOST: mysql_db
       MYSQL_USER: root
-      MYSQL_PASSWORD: rootpassword
+      MYSQL_PASSWORD: mypassword123
+      MYSQL_DB: tasks_db
+    volumes:
+      - ./templates:/app/templates
+      - ./app.py:/app/app.py
+
+  mysql_db:
+    image: mysql:8.0
+    container_name: flask-task-manager-mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mypassword123  # חובה להגדיר סיסמה חוקית ל-root
       MYSQL_DATABASE: tasks_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
