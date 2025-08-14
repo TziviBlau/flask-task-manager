@@ -4,30 +4,104 @@
     <meta charset="UTF-8">
     <title>Task Manager</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        h1 { color: #333; }
-        ul { list-style: none; padding: 0; }
-        li { padding: 8px; margin-bottom: 6px; background: #f4f4f4; border-radius: 4px; }
-        .done { text-decoration: line-through; color: gray; }
-        form { margin-bottom: 20px; }
-        input[type="text"] { padding: 6px; width: 250px; }
-        button { padding: 6px 12px; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f7;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        li.done {
+            text-decoration: line-through;
+            color: gray;
+            background-color: #e2e3e5;
+        }
+        li a {
+            margin-left: 10px;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+        }
+        .toggle-btn {
+            background-color: #007bff;
+        }
+        .toggle-btn:hover {
+            background-color: #0069d9;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
     </style>
 </head>
 <body>
-    <h1>Task Manager</h1>
-    <form method="POST" action="/add">
-        <input type="text" name="title" placeholder="New task..." required>
-        <button type="submit">Add Task</button>
-    </form>
-    <ul>
-        {% for task in tasks %}
+    <div class="container">
+        <h1>Task Manager</h1>
+        <form method="POST" action="/add">
+            <input type="text" name="title" placeholder="New task..." required>
+            <button type="submit">Add</button>
+        </form>
+        <ul>
+            {% for task in tasks %}
             <li class="{{ 'done' if task.done else '' }}">
-                {{ task.title }}
-                <a href="/toggle/{{ task.id }}">[Toggle]</a>
-                <a href="/delete/{{ task.id }}">[Delete]</a>
+                <span>{{ task.title }}</span>
+                <div>
+                    <a href="/toggle/{{ task.id }}" class="toggle-btn">Toggle</a>
+                    <a href="/delete/{{ task.id }}" class="delete-btn">Delete</a>
+                </div>
             </li>
-        {% endfor %}
-    </ul>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
