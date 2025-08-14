@@ -1,102 +1,85 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול משימות</title>
+    <title>Add New Task</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f4f8;
+            background-color: #f5f6fa;
             margin: 0;
             padding: 0;
         }
-        header {
-            background-color: #1e90ff;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
         .container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 20px;
-            background-color: white;
+            width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        h1 {
-            margin-bottom: 20px;
+        h2 {
             text-align: center;
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f7f7f7;
-        }
-        tr:hover {
-            background-color: #f1f9ff;
-        }
-        .btn-add {
-            background-color: #1e90ff;
-            padding: 10px 15px;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            display: inline-block;
-            margin-bottom: 15px;
-            cursor: pointer;
-        }
-        .btn-delete {
-            background-color: #ff4d4f;
-            padding: 5px 10px;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            color: #2f3640;
         }
         form {
-            display: inline;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #2f3640;
+        }
+        input[type="text"],
+        textarea {
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #dcdde1;
+            resize: vertical;
+        }
+        button {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #273c75;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #192a56;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .back-link a {
+            text-decoration: none;
+            color: #718093;
+        }
+        .back-link a:hover {
+            color: #273c75;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>ניהול משימות</h1>
-    </header>
     <div class="container">
-        <a href="/add" class="btn-add">הוספת משימה חדשה</a>
-        <table>
-            <thead>
-                <tr>
-                    <th>שם המשימה</th>
-                    <th>תיאור</th>
-                    <th>פעולות</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for task in tasks %}
-                <tr>
-                    <td>{{ task.title }}</td>
-                    <td>{{ task.description }}</td>
-                    <td>
-                        <form method="POST" action="/delete/{{ task.id }}">
-                            <button type="submit" class="btn-delete">מחק</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <h2>Add New Task</h2>
+        <form method="POST">
+            <label for="title">Task Title:</label>
+            <input type="text" id="title" name="title" placeholder="Enter task title" required>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" placeholder="Enter task description"></textarea>
+
+            <button type="submit">Add Task</button>
+        </form>
+        <div class="back-link">
+            <a href="/tasks">← Back to Tasks</a>
+        </div>
     </div>
 </body>
 </html>
