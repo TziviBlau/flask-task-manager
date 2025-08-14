@@ -1,23 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Task Manager</title>
 </head>
 <body>
-    <h1>Task Manager</h1>
-
-    <form action="/add" method="POST">
-        <input type="text" name="title" placeholder="Task title" required>
-        <input type="text" name="description" placeholder="Description">
-        <button type="submit">Add Task</button>
-    </form>
-
-    <h2>Tasks</h2>
+    <h1>Tasks</h1>
     <ul>
         {% for task in tasks %}
-            <li>{{ task.title }} - {{ task.description }}</li>
+            <li>{{ task[1] }}</li>
         {% endfor %}
     </ul>
+
+    <h2>Add Task</h2>
+    <form method="POST" action="/add">
+        <input type="text" name="name" placeholder="Task name" required>
+        <button type="submit">Add</button>
+    </form>
 </body>
 </html>
