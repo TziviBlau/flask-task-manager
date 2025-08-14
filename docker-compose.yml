@@ -1,10 +1,9 @@
-version: '3.9'
+version: "3.9"
 
 services:
-  db:
+  mysql:
     image: mysql:8.0
     container_name: mysql_db
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: mypassword
       MYSQL_DATABASE: task_manager
@@ -12,21 +11,24 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./db_init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 5
 
   app:
     build: .
     container_name: flask-task-manager-app
-    restart: always
     ports:
       - "5000:5000"
-    environment:
-      DB_HOST: db
-      DB_USER: root
-      DB_PASSWORD: mypassword
-      DB_NAME: task_manager
     depends_on:
-      - db
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: mypassword
+      MYSQL_DB: task_manager
 
 volumes:
   db_data:
