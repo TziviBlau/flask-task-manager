@@ -6,33 +6,10 @@
 </head>
 <body>
     <h1>Task Manager</h1>
-    <ul>
-        {% for task in tasks %}
-            <li>{{ task.name }}</li>
-        {% endfor %}
-    </ul>
-
-    <h2>New task</h2>
-    <form id="taskForm">
-        <input type="text" name="name" placeholder="Add Task" required>
+    <form action="{{ url_for('add_task') }}" method="POST">
+        <input type="text" name="task_name" placeholder="New Task">
         <button type="submit">Add Task</button>
     </form>
-
-    <script>
-        const form = document.getElementById('taskForm');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const response = await fetch('/add_task', {
-                method: 'POST',
-                body: formData
-            });
-            if(response.ok) {
-                location.reload();
-            } else {
-                alert('Error adding task');
-            }
-        });
-    </script>
+    <a href="{{ url_for('tasks') }}">View All Tasks</a>
 </body>
 </html>
