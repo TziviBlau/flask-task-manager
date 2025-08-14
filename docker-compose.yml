@@ -9,7 +9,6 @@ services:
     environment:
       FLASK_ENV: development
       MYSQL_HOST: mysql_db
-      MYSQL_USER: root
       MYSQL_PASSWORD: mypassword123
       MYSQL_DB: tasks_db
     volumes:
