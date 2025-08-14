@@ -5,23 +5,18 @@ import time
 
 app = Flask(__name__)
 
-# חיבור לדטהבייס עם retries עד שה־DB מוכן
 def get_db_connection():
-    retries = 5
-    while retries > 0:
+    while True:
         try:
             conn = mysql.connector.connect(
-                host=os.environ.get('DB_HOST', 'localhost'),
-                user=os.environ.get('DB_USER', 'root'),
-                password=os.environ.get('DB_PASSWORD', ''),
-                database=os.environ.get('DB_NAME', 'task_manager')
+                host=os.environ.get('MYSQL_HOST', 'localhost'),
+                user=os.environ.get('MYSQL_USER', 'root'),
+                password=os.environ.get('MYSQL_PASSWORD', 'mypassword'),
+                database=os.environ.get('MYSQL_DB', 'task_manager')
             )
             return conn
-        except mysql.connector.Error as err:
-            print(f"Error connecting to MySQL: {err}")
-            retries -= 1
-            time.sleep(3)
-    raise Exception("Cannot connect to MySQL after several retries.")
+        except mysql.connector.Error:
+            time.sleep(2)
 
 @app.route('/')
 def index():
@@ -35,7 +30,7 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add_task():
-    task_name = request.form.get('task_name')
+    task_name = request.form.get('task')
     if task_name:
         conn = get_db_connection()
         cursor = conn.cursor()
