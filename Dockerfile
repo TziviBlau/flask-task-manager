@@ -1,17 +1,21 @@
-# שלב 1 - בחירת תמונת בסיס
-FROM python:3.10-slim
+# Base image
+FROM python:3.11-slim
 
-# שלב 2 - הגדרת תיקיית עבודה
+# Set working directory
 WORKDIR /app
 
-# שלב 3 - העתקת קבצי הדרישות
+# Copy dependencies first for caching
 COPY requirements.txt .
 
-# שלב 4 - התקנת חבילות
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# שלב 5 - העתקת קבצי הפרויקט
-COPY . .
+# Copy application code and templates
+COPY app.py .
+COPY templates/ ./templates/
 
-# שלב 6 - הפעלת האפליקציה
-CMD ["python", "app.py"]
+# Expose port
+EXPOSE 5000
+
+# Run the app
+CMD ["python3", "app.py"]
