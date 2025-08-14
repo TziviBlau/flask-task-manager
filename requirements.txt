@@ -1,3 +1,2 @@
 flask==2.3.3
-Flask
 mysql-connector-python
