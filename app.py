@@ -1,44 +1,60 @@
 from flask import Flask, render_template, request, redirect
 import mysql.connector
-import os
 import time
 
 app = Flask(__name__)
 
+# חיבור למסד הנתונים - בלי סיסמאות
 def get_db_connection():
-    while True:
+    retries = 5
+    while retries:
         try:
-            conn = mysql.connector.connect(
-                host=os.environ.get('MYSQL_HOST', 'localhost'),
-                user=os.environ.get('MYSQL_USER', 'root'),
-                password=os.environ.get('MYSQL_PASSWORD', 'mypassword'),
-                database=os.environ.get('MYSQL_DB', 'task_manager')
+            cnx = mysql.connector.connect(
+                host="db",
+                user="root",
+                password="",
+                database="task_manager"
             )
-            return conn
+            return cnx
         except mysql.connector.Error:
+            retries -= 1
             time.sleep(2)
+    raise Exception("Cannot connect to database")
 
-@app.route('/')
+@app.route("/")
 def index():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    cnx = get_db_connection()
+    cursor = cnx.cursor(dictionary=True)
+    
+    # יוצרים את הטבלה אם לא קיימת
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS tasks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+    cnx.commit()
+    
     cursor.execute("SELECT * FROM tasks")
     tasks = cursor.fetchall()
     cursor.close()
-    conn.close()
-    return render_template('index.html', tasks=tasks)
+    cnx.close()
+    return render_template("index.html", tasks=tasks)
 
-@app.route('/add', methods=['POST'])
+@app.route("/add", methods=["POST"])
 def add_task():
-    task_name = request.form.get('task')
-    if task_name:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO tasks (name) VALUES (%s)", (task_name,))
-        conn.commit()
-        cursor.close()
-        conn.close()
-    return redirect('/')
+    title = request.form.get("title")
+    description = request.form.get("description")
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    cnx = get_db_connection()
+    cursor = cnx.cursor()
+    cursor.execute("INSERT INTO tasks (title, description) VALUES (%s, %s)", (title, description))
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+    return redirect("/")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
