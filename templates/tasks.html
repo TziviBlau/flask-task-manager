@@ -2,15 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>All Tasks</title>
+    <title>Task Manager</title>
 </head>
 <body>
     <h1>All Tasks</h1>
+
     <ul>
         {% for task in tasks %}
-            <li>{{ task.name }}</li>
+            <li>
+                {{ task.title }} {% if task.done %}(Done){% endif %}
+            </li>
         {% endfor %}
     </ul>
-    <a href="{{ url_for('index') }}">Add New Task</a>
+
+    <h2>Add New Task</h2>
+    <form action="/add" method="post">
+        <input type="text" name="title" placeholder="Task title" required>
+        <button type="submit">Add</button>
+    </form>
 </body>
 </html>
