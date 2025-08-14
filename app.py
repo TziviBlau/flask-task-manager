@@ -1,44 +1,43 @@
-from flask import Flask, render_template, request, redirect
-import mysql.connector
-import time
 import os
+import time
+from flask import Flask, render_template, request, redirect, url_for
+import mysql.connector
+from mysql.connector import Error
 
 app = Flask(__name__)
 
-DB_HOST = os.getenv("DB_HOST", "db")
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "mysecretpassword")
-DB_NAME = os.getenv("DB_NAME", "task_manager")
-
+# פונקציה להתחברות ל־DB עם retries
 def get_db_connection(retries=5, delay=3):
-    for i in range(retries):
+    for attempt in range(retries):
         try:
-            cnx = mysql.connector.connect(
-                host=DB_HOST,
-                user=DB_USER,
-                password=DB_PASSWORD,
-                database=DB_NAME
+            connection = mysql.connector.connect(
+                host=os.environ.get("MYSQL_HOST", "db"),  # שם הסרוויס ב־docker-compose
+                user=os.environ.get("MYSQL_USER", "root"),
+                password=os.environ.get("MYSQL_PASSWORD", "mysecretpassword"),
+                database=os.environ.get("MYSQL_DATABASE", "task_manager")
             )
-            return cnx
-        except mysql.connector.Error as err:
-            print(f"Database connection failed: {err}, retrying ({i+1}/{retries})...")
+            return connection
+        except Error as e:
+            print(f"Database connection failed: {e}, retrying ({attempt+1}/{retries})...")
             time.sleep(delay)
     raise Exception("Cannot connect to database after multiple retries")
 
+# אתחול מסד הנתונים - יצירת טבלה אם לא קיימת
 def init_db():
     cnx = get_db_connection()
     cursor = cnx.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL
+            title VARCHAR(255) NOT NULL,
+            done BOOLEAN NOT NULL DEFAULT FALSE
         )
     """)
     cnx.commit()
     cursor.close()
     cnx.close()
 
-@app.route("/")
+@app.route('/')
 def index():
     cnx = get_db_connection()
     cursor = cnx.cursor(dictionary=True)
@@ -46,11 +45,11 @@ def index():
     tasks = cursor.fetchall()
     cursor.close()
     cnx.close()
-    return render_template("tasks.html", tasks=tasks)
+    return render_template('tasks.html', tasks=tasks)
 
-@app.route("/add", methods=["POST"])
+@app.route('/add', methods=['POST'])
 def add_task():
-    title = request.form.get("title")
+    title = request.form.get('title')
     if title:
         cnx = get_db_connection()
         cursor = cnx.cursor()
@@ -58,8 +57,28 @@ def add_task():
         cnx.commit()
         cursor.close()
         cnx.close()
-    return redirect("/")
+    return redirect(url_for('index'))
 
-if __name__ == "__main__":
+@app.route('/toggle/<int:task_id>')
+def toggle_task(task_id):
+    cnx = get_db_connection()
+    cursor = cnx.cursor()
+    cursor.execute("UPDATE tasks SET done = NOT done WHERE id = %s", (task_id,))
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+    return redirect(url_for('index'))
+
+@app.route('/delete/<int:task_id>')
+def delete_task(task_id):
+    cnx = get_db_connection()
+    cursor = cnx.cursor()
+    cursor.execute("DELETE FROM tasks WHERE id = %s", (task_id,))
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+    return redirect(url_for('index'))
+
+if __name__ == '__main__':
     init_db()
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
