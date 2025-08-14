@@ -3,25 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Task Manager</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f9fc; }
-        h1 { color: #333; }
-        ul { list-style: none; padding: 0; }
-        li { padding: 10px; margin-bottom: 5px; background: #fff; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
-        button { margin-left: 10px; }
-    </style>
 </head>
 <body>
     <h1>Task Manager</h1>
-    <ul>
-        {% for task in tasks %}
-            <li>
-                {{ task.title }} {% if task.done %}(Done){% endif %}
-                <form style="display:inline;" method="POST" action="/tasks/{{ task.id }}">
-                    <button type="submit">Toggle</button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
+    <input type="text" id="taskInput" placeholder="New task">
+    <button onclick="addTask()">Add Task</button>
+    <ul id="taskList"></ul>
+
+    <script>
+        async function loadTasks() {
+            const res = await fetch('/tasks');
+            const tasks = await res.json();
+            const ul = document.getElementById('taskList');
+            ul.innerHTML = '';
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.textContent = task.name;
+                ul.appendChild(li);
+            });
+        }
+
+        async function addTask() {
+            const input = document.getElementById('taskInput');
+            await fetch('/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: input.value })
+            });
+            input.value = '';
+            loadTasks();
+        }
+
+        loadTasks();
+    </script>
 </body>
 </html>
