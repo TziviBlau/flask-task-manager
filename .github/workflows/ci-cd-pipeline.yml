@@ -1,0 +1,41 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Basic validation tests
+        run: |
+          python -c "import flask; print('✓ Flask import successful')"
+          test -f Dockerfile && echo "✓ Dockerfile exists"
+          test -f app.py && echo "✓ app.py exists"
+
+      - name: Build Docker image
+        run: |
+          docker build -t flask-task-manager:latest .
+
+      - name: Run container and test endpoints
+        run: |
+          docker run -d -p 5000:5000 --name test-app flask-task-manager:latest
+          sleep 5
+          curl -f http://localhost:5000/ && echo "✓ Main endpoint works"
+          curl -f http://localhost:5000/health && echo "✓ Health endpoint works"
+          docker stop test-app && docker rm test-app
