@@ -2,20 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tasks</title>
+    <title>Task Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 8px; margin-bottom: 6px; background: #f4f4f4; border-radius: 4px; }
+        .done { text-decoration: line-through; color: gray; }
+        form { margin-bottom: 20px; }
+        input[type="text"] { padding: 6px; width: 250px; }
+        button { padding: 6px 12px; }
+    </style>
 </head>
 <body>
-    <h1>All Tasks</h1>
-    <ul>
-        {% for task in tasks %}
-            <li>{{ task.title }}</li>
-        {% endfor %}
-    </ul>
-
-    <h2>Add New Task</h2>
-    <form action="/add" method="post">
-        <input type="text" name="title" required>
+    <h1>Task Manager</h1>
+    <form method="POST" action="/add">
+        <input type="text" name="title" placeholder="New task..." required>
         <button type="submit">Add Task</button>
     </form>
+    <ul>
+        {% for task in tasks %}
+            <li class="{{ 'done' if task.done else '' }}">
+                {{ task.title }}
+                <a href="/toggle/{{ task.id }}">[Toggle]</a>
+                <a href="/delete/{{ task.id }}">[Delete]</a>
+            </li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
