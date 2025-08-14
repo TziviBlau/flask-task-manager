@@ -1,33 +1,32 @@
-version: "3.8"
+version: "3.9"
 
 services:
-  db:
+  app:
+    build: .
+    container_name: flask-task-manager-app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: mypassword
+      MYSQL_DATABASE: Healthy
+    volumes:
+      - .:/app
+
+  mysql:
     image: mysql:8.0
     container_name: mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: tasks_db
-      MYSQL_USER: taskuser
-      MYSQL_PASSWORD: taskpass
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_DATABASE: Healthy
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-
-  app:
-    build: .
-    container_name: flask_app
-    restart: always
-    ports:
-      - "5000:5000"
-    environment:
-      DB_HOST: db
-      DB_USER: taskuser
-      DB_PASS: taskpass
-      DB_NAME: tasks_db
-    depends_on:
-      - db
 
 volumes:
   db_data:
