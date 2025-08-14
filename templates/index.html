@@ -6,35 +6,33 @@
 </head>
 <body>
     <h1>Task Manager</h1>
-    <input type="text" id="taskInput" placeholder="New task">
-    <button onclick="addTask()">Add Task</button>
-    <ul id="taskList"></ul>
+    <ul>
+        {% for task in tasks %}
+            <li>{{ task.name }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>New task</h2>
+    <form id="taskForm">
+        <input type="text" name="name" placeholder="Add Task" required>
+        <button type="submit">Add Task</button>
+    </form>
 
     <script>
-        async function loadTasks() {
-            const res = await fetch('/tasks');
-            const tasks = await res.json();
-            const ul = document.getElementById('taskList');
-            ul.innerHTML = '';
-            tasks.forEach(task => {
-                const li = document.createElement('li');
-                li.textContent = task.name;
-                ul.appendChild(li);
-            });
-        }
-
-        async function addTask() {
-            const input = document.getElementById('taskInput');
-            await fetch('/tasks', {
+        const form = document.getElementById('taskForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch('/add_task', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: input.value })
+                body: formData
             });
-            input.value = '';
-            loadTasks();
-        }
-
-        loadTasks();
+            if(response.ok) {
+                location.reload();
+            } else {
+                alert('Error adding task');
+            }
+        });
     </script>
 </body>
 </html>
