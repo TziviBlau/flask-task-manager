@@ -5,13 +5,12 @@ import os
 
 app = Flask(__name__)
 
-DB_HOST = os.environ.get("MYSQL_HOST", "mysql_db")
-DB_USER = os.environ.get("MYSQL_USER", "root")
-DB_PASSWORD = os.environ.get("MYSQL_PASSWORD", "rootpassword")
-DB_NAME = os.environ.get("MYSQL_DATABASE", "tasks_db")
+DB_HOST = os.getenv("DB_HOST", "db")
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "mysecretpassword")
+DB_NAME = os.getenv("DB_NAME", "task_manager")
 
-def get_db_connection():
-    retries = 5
+def get_db_connection(retries=5, delay=3):
     for i in range(retries):
         try:
             cnx = mysql.connector.connect(
@@ -21,8 +20,9 @@ def get_db_connection():
                 database=DB_NAME
             )
             return cnx
-        except mysql.connector.Error:
-            time.sleep(2)
+        except mysql.connector.Error as err:
+            print(f"Database connection failed: {err}, retrying ({i+1}/{retries})...")
+            time.sleep(delay)
     raise Exception("Cannot connect to database after multiple retries")
 
 def init_db():
@@ -31,8 +31,7 @@ def init_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            done BOOLEAN DEFAULT FALSE
+            title VARCHAR(255) NOT NULL
         )
     """)
     cnx.commit()
@@ -63,4 +62,4 @@ def add_task():
 
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
