@@ -1,10 +1,14 @@
+version: "3.8"
+
 services:
   mysql_db:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ""
-      MYSQL_DATABASE: task_db
+      MYSQL_ROOT_PASSWORD: root1234         # סיסמת root
+      MYSQL_DATABASE: task_manager          # שם בסיס הנתונים
+      MYSQL_USER: taskuser                  # שם משתמש
+      MYSQL_PASSWORD: taskpass              # סיסמת המשתמש
     ports:
       - "3306:3306"
     volumes:
@@ -12,15 +16,16 @@ services:
 
   app:
     build: .
+    restart: always
+    environment:
+      DB_HOST: mysql_db
+      DB_USER: taskuser
+      DB_PASSWORD: taskpass
+      DB_NAME: task_manager
     ports:
       - "5000:5000"
     depends_on:
       - mysql_db
-    environment:
-      DB_HOST: mysql_db
-      DB_USER: root
-      DB_PASSWORD: ""
-      DB_NAME: task_db
 
 volumes:
   mysql_data:
