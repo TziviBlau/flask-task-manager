@@ -56,5 +56,5 @@ def add_task():
     return redirect("/")
 
 if __name__ == "__main__":
-    init_db()  # יוודא שהטבלה קיימת לפני שמריצים את השרת
+    init_db()
     app.run(host="0.0.0.0", port=5000)
