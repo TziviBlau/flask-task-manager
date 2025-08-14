@@ -1,55 +1,65 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, request, jsonify, render_template
+import mysql.connector
+import os
 
 app = Flask(__name__)
 
-# רשימת משימות התחלתית
-tasks = [
-    {"id": 1, "title": "Learn Flask", "done": False},
-    {"id": 2, "title": "Build CI/CD pipeline", "done": False}
-]
+# Database connection
+db = mysql.connector.connect(
+    host=os.environ.get("DB_HOST", "localhost"),
+    user=os.environ.get("DB_USER", "root"),
+    password=os.environ.get("DB_PASS", "password"),
+    database=os.environ.get("DB_NAME", "tasks_db")
+)
+cursor = db.cursor(dictionary=True)
 
-# עמוד ראשי – מציג את ממשק ה־HTML
+# Create table if not exists
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    done BOOLEAN DEFAULT FALSE
+)
+""")
+db.commit()
+
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
-# בריאות האפליקציה / בדיקת DB
-@app.route("/health")
-def health():
-    # כאן בגרסה הפשוטה – database always healthy
-    return jsonify({"database": "Healthy", "status": "OK"})
-
-# קבלת כל המשימות
 @app.route("/tasks", methods=["GET"])
 def get_tasks():
+    cursor.execute("SELECT * FROM tasks")
+    tasks = cursor.fetchall()
     return jsonify(tasks)
 
-# הוספת משימה חדשה
 @app.route("/tasks", methods=["POST"])
 def add_task():
     data = request.get_json()
-    if not data or "title" not in data:
-        return jsonify({"error": "Title is required"}), 400
-    new_id = max([t["id"] for t in tasks] + [0]) + 1
-    task = {"id": new_id, "title": data["title"], "done": False}
-    tasks.append(task)
-    return jsonify(task), 201
+    cursor.execute("INSERT INTO tasks (title) VALUES (%s)", (data["title"],))
+    db.commit()
+    return jsonify({"message": "Task added"}), 201
 
-# סימון משימה כבוצעה
 @app.route("/tasks/<int:task_id>", methods=["PUT"])
-def mark_task_done(task_id):
-    for task in tasks:
-        if task["id"] == task_id:
-            task["done"] = not task["done"]
-            return jsonify(task)
-    return jsonify({"error": "Task not found"}), 404
+def update_task(task_id):
+    data = request.get_json()
+    cursor.execute("UPDATE tasks SET done=%s WHERE id=%s", (data["done"], task_id))
+    db.commit()
+    return jsonify({"message": "Task updated"})
 
-# מחיקת משימה
 @app.route("/tasks/<int:task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    global tasks
-    tasks = [t for t in tasks if t["id"] != task_id]
-    return jsonify({"result": "Task deleted"})
+    cursor.execute("DELETE FROM tasks WHERE id=%s", (task_id,))
+    db.commit()
+    return jsonify({"message": "Task deleted"})
+
+@app.route("/health")
+def health():
+    try:
+        cursor.execute("SELECT 1")
+        return jsonify({"status": "OK", "database": "Healthy"})
+    except:
+        return jsonify({"status": "FAIL", "database": "Unhealthy"}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
