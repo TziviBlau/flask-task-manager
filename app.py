@@ -11,7 +11,7 @@ def get_db_connection(retries=5, delay=3):
     for attempt in range(retries):
         try:
             connection = mysql.connector.connect(
-                host=os.environ.get("MYSQL_HOST", "db"),  # שם הסרוויס ב־docker-compose
+                host=os.environ.get("MYSQL_HOST", "db"),
                 user=os.environ.get("MYSQL_USER", "root"),
                 password=os.environ.get("MYSQL_PASSWORD", "mysecretpassword"),
                 database=os.environ.get("MYSQL_DATABASE", "task_manager")
@@ -22,7 +22,7 @@ def get_db_connection(retries=5, delay=3):
             time.sleep(delay)
     raise Exception("Cannot connect to database after multiple retries")
 
-# אתחול מסד הנתונים - יצירת טבלה אם לא קיימת
+# אתחול DB - יצירת טבלה אם לא קיימת
 def init_db():
     cnx = get_db_connection()
     cursor = cnx.cursor()
@@ -41,7 +41,7 @@ def init_db():
 def index():
     cnx = get_db_connection()
     cursor = cnx.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM tasks")
+    cursor.execute("SELECT * FROM tasks ORDER BY id DESC")
     tasks = cursor.fetchall()
     cursor.close()
     cnx.close()
