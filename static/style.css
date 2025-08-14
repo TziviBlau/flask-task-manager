@@ -1,87 +1,71 @@
 body {
+    background-color: #f0f8ff; /* רקע תכלת בהיר */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f9;
-    margin: 0;
-    padding: 0;
-}
-
-.container {
-    max-width: 600px;
-    margin: 50px auto;
-    background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 h1 {
-    text-align: center;
-    color: #333;
+    color: #0d6efd;
+    font-weight: 700;
 }
 
-form {
-    display: flex;
-    margin-bottom: 20px;
-}
-
-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px 0 0 5px;
-    outline: none;
-}
-
-button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #4caf50;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 0 5px 5px 0;
-    transition: background-color 0.3s;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
+#task-list .list-group-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    background-color: #fafafa;
-    transition: background-color 0.3s;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 12px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: #ffffff;
+    transition: transform 0.2s;
 }
 
-li:hover {
-    background-color: #f1f1f1;
+#task-list .list-group-item:hover {
+    transform: translateY(-2px);
 }
 
-li.done {
-    text-decoration: line-through;
-    color: gray;
+#task-list button {
+    min-width: 60px;
 }
 
-li button {
-    background-color: #2196f3;
-    margin-left: 5px;
+#new-task {
+    border-radius: 8px;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    transition: box-shadow 0.2s, border-color 0.2s;
 }
 
-li button.deleteBtn {
-    background-color: #f44336;
+#new-task:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 5px rgba(13,110,253,0.5);
 }
 
-li button:hover {
-    opacity: 0.9;
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
 }
