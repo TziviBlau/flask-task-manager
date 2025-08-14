@@ -2,81 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f9fc; }
+        h1 { color: #333; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 10px; margin-bottom: 5px; background: #fff; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        button { margin-left: 10px; }
+    </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h1 class="text-center mb-4">Task Manager</h1>
-
-    <!-- Form to add new task -->
-    <div class="mb-4">
-        <input type="text" id="new-task" class="form-control mb-2" placeholder="Enter new task">
-        <button class="btn btn-primary w-100" onclick="addTask()">Add Task</button>
-    </div>
-
-    <!-- Task list -->
-    <ul class="list-group" id="task-list">
-        <!-- Tasks will be inserted here -->
+    <h1>Task Manager</h1>
+    <ul>
+        {% for task in tasks %}
+            <li>
+                {{ task.title }} {% if task.done %}(Done){% endif %}
+                <form style="display:inline;" method="POST" action="/tasks/{{ task.id }}">
+                    <button type="submit">Toggle</button>
+                </form>
+            </li>
+        {% endfor %}
     </ul>
-</div>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    const apiBase = "/tasks"; // adjust to your Flask route
-
-    async function fetchTasks() {
-        const res = await fetch(apiBase);
-        const tasks = await res.json();
-        const list = document.getElementById("task-list");
-        list.innerHTML = "";
-        tasks.forEach(task => {
-            const li = document.createElement("li");
-            li.className = "list-group-item d-flex justify-content-between align-items-center";
-            li.innerHTML = `
-                <span ${task.done ? 'class="text-decoration-line-through"' : ''}>${task.title}</span>
-                <div>
-                    <button class="btn btn-success btn-sm me-1" onclick="toggleDone(${task.id})">
-                        ${task.done ? 'Undo' : 'Done'}
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteTask(${task.id})">Delete</button>
-                </div>
-            `;
-            list.appendChild(li);
-        });
-    }
-
-    async function addTask() {
-        const input = document.getElementById("new-task");
-        const title = input.value.trim();
-        if (!title) return;
-        await fetch(apiBase, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title })
-        });
-        input.value = "";
-        fetchTasks();
-    }
-
-    async function toggleDone(id) {
-        await fetch(`${apiBase}/${id}`, { method: "PATCH" });
-        fetchTasks();
-    }
-
-    async function deleteTask(id) {
-        await fetch(`${apiBase}/${id}`, { method: "DELETE" });
-        fetchTasks();
-    }
-
-    // Initial fetch
-    fetchTasks();
-</script>
 </body>
 </html>
