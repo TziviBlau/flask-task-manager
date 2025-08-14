@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager</title>
-    <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f4f6f9;
+            background-color: #eef2f7;
             padding: 20px;
         }
         .container {
@@ -27,11 +26,19 @@
         .btn-add:hover {
             background-color: #0b5ed7;
         }
+        .badge-completed {
+            background-color: #198754;
+        }
+        .badge-pending {
+            background-color: #ffc107;
+            color: #000;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1 class="mb-4 text-center">All Tasks</h1>
+    <h1 class="mb-4 text-center">Task Manager</h1>
+
     <div class="mb-3 text-end">
         <a href="/add" class="btn btn-add">Add New Task</a>
     </div>
@@ -51,18 +58,24 @@
                 </thead>
                 <tbody>
                     {% for task in tasks %}
-                    <tr>
+                    <tr class="{% if task.completed %}table-success{% else %}table-warning{% endif %}">
                         <td>{{ task.id }}</td>
                         <td>{{ task.title }}</td>
                         <td>{{ task.description }}</td>
                         <td>
                             {% if task.completed %}
-                                <span class="badge bg-success">Completed</span>
+                                <span class="badge badge-completed">Completed</span>
                             {% else %}
-                                <span class="badge bg-warning text-dark">Pending</span>
+                                <span class="badge badge-pending">Pending</span>
                             {% endif %}
                         </td>
                         <td>
+                            <!-- Toggle status button -->
+                            <form action="/toggle/{{ task.id }}" method="POST" style="display:inline;">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    {% if task.completed %}Mark Pending{% else %}Mark Completed{% endif %}
+                                </button>
+                            </form>
                             <a href="/edit/{{ task.id }}" class="btn btn-sm btn-primary">Edit</a>
                             <a href="/delete/{{ task.id }}" class="btn btn-sm btn-danger">Delete</a>
                         </td>
@@ -71,13 +84,12 @@
                 </tbody>
             </table>
             {% else %}
-                <p class="text-center">No tasks found. Click "Add New Task" to create one!</p>
+                <p class="text-center">No tasks yet. Click "Add New Task" to create one!</p>
             {% endif %}
         </div>
     </div>
 </div>
 
-<!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
