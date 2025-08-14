@@ -2,6 +2,7 @@
 <html lang="he">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ניהול משימות</title>
     <style>
         body {
@@ -9,85 +10,93 @@
             background-color: #f0f4f8;
             margin: 0;
             padding: 0;
-            direction: rtl;
         }
         header {
-            background-color: #4a90e2;
+            background-color: #1e90ff;
             color: white;
             padding: 20px;
             text-align: center;
         }
-        main {
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
             padding: 20px;
-            max-width: 600px;
-            margin: auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         h1 {
-            text-align: center;
             margin-bottom: 20px;
+            text-align: center;
+            color: #333;
         }
-        form {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 30px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        input[type="text"] {
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f7f7f7;
+        }
+        tr:hover {
+            background-color: #f1f9ff;
+        }
+        .btn-add {
+            background-color: #1e90ff;
+            padding: 10px 15px;
+            color: white;
+            border: none;
             border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 15px;
+            cursor: pointer;
         }
-        button {
-            padding: 10px;
-            background-color: #4a90e2;
+        .btn-delete {
+            background-color: #ff4d4f;
+            padding: 5px 10px;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
         }
-        button:hover {
-            background-color: #357ABD;
-        }
-        .task {
-            background-color: white;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0px 1px 4px rgba(0,0,0,0.1);
-        }
-        .task-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .task-desc {
-            color: #555;
+        form {
+            display: inline;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>רשימת משימות</h1>
+        <h1>ניהול משימות</h1>
     </header>
-    <main>
-        <form action="{{ url_for('add_task') }}" method="POST">
-            <input type="text" name="title" placeholder="כותרת המשימה" required>
-            <input type="text" name="description" placeholder="תיאור המשימה">
-            <button type="submit">הוסף משימה</button>
-        </form>
-
-        {% for task in tasks %}
-        <div class="task">
-            <div class="task-title">{{ task['title'] }}</div>
-            <div class="task-desc">{{ task['description'] }}</div>
-        </div>
-        {% else %}
-        <p>אין משימות להציג</p>
-        {% endfor %}
-    </main>
+    <div class="container">
+        <a href="/add" class="btn-add">הוספת משימה חדשה</a>
+        <table>
+            <thead>
+                <tr>
+                    <th>שם המשימה</th>
+                    <th>תיאור</th>
+                    <th>פעולות</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>
+                        <form method="POST" action="/delete/{{ task.id }}">
+                            <button type="submit" class="btn-delete">מחק</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
