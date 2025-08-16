@@ -45,6 +45,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: package
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
@@ -61,10 +64,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy to Kubernetes (Killercoda or mock)
+      - name: Deploy to Kubernetes (Killercoda or simulated)
         run: |
-          echo "Simulating deploy..."
-          # אם יש לך קבצי k8s/
+          echo "Simulating deployment..."
+          # אם יש לך קבצי קוברנטיס בתיקיית k8s/, אפשר לשים כאן:
           # kubectl apply -f k8s/
 
   verify:
