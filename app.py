@@ -78,3 +78,16 @@ def toggle_task(task_id):
     cnx.close()
     return redirect(url_for('index'))
 
+@app.route('/delete/<int:task_id>')
+def delete_task(task_id):
+    cnx = get_db_connection()
+    cursor = cnx.cursor()
+    cursor.execute("DELETE FROM tasks WHERE id = %s", (task_id,))
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+    return redirect(url_for('index'))
+
+if __name__ == '__main__':
+    init_db()
+    app.run(host='0.0.0.0', port=5000, debug=True)
