@@ -1,125 +1,91 @@
 # Flask Task Manager
 
-יישום פשוט לניהול משימות (To-Do / Task Manager) שנבנה עם **Flask** ו־**MySQL**, ומריץ סביבה מלאה בעזרת **Docker Compose**.  
-האפליקציה מאפשרת לנהל רשימת משימות עם יכולות CRUD מלאות: יצירה, צפייה, עדכון ומחיקה.
+יישום לניהול משימות (To-Do / Task Manager) שנבנה עם Flask ו-MySQL ומופעל באמצעות Docker Compose. האפליקציה מאפשרת ליצור, לצפות, לעדכן ולמחוק משימות (CRUD) בצורה פשוטה ואינטואיטיבית. היא כוללת ממשק אינטרנטי בסיסי, API REST עם נקודות קצה לפעולות על המשימות ובדיקת בריאות (Health Check) עם התחברות למסד הנתונים. 
 
----
-
-##  פיצ'רים
+## פיצ'רים
 - הוספה, עריכה ומחיקה של משימות
 - סימון משימה כהושלמה
-- ממשק אינטרנטי בסיסי עם HTML/CSS
-- API REST עם 4 נקודות קצה עיקריות (GET, POST, PUT, DELETE)
-- בדיקת בריאות (Health Check) עם התחברות למסד הנתונים
-- תמיכה ב־Docker להרצה פשוטה בכל סביבה
+- ממשק HTML/CSS בסיסי
+- API REST עם נקודות קצה: GET /, POST /add, PUT /toggle/<id>, DELETE /delete/<id>
+- בדיקת בריאות במסד הנתונים ב-/health
+- תמיכה בהרצה מלאה עם Docker Compose
 
----
-
-##  ארכיטקטורה
-המערכת מבוססת על 3 שכבות:
-1. **Nginx** – משמש כ־reverse proxy ומאזן עומסים (מאזין ב־`localhost:8080`)
-2. **Flask App** – שרת האפליקציה (מאזין ב־`5000`)
-3. **MySQL** – מסד נתונים מאוחסן עם volume קבוע לשמירה על נתונים
-
----
+## ארכיטקטורה
+המערכת בנויה משלוש שכבות: 
+1. **MySQL** – מסד הנתונים עם volume קבוע לשמירה על נתונים.
+2. **Flask App** – שרת האפליקציה שמבצע את כל פעולות CRUD ומאזין ב־5000.
+3. **Nginx** – משמש כ-reverse proxy ומאזן עומסים, מאזין ב־8080.
 
 ## התקנה והרצה
-
-### דרישות מקדימות
+### דרישות
 - Docker
 - Docker Compose
 
-### שלבים
+### צעדים
 1. שיבוט הפרויקט:
    ```bash
    git clone https://github.com/your-username/flask-task-manager.git
    cd flask-task-manager
-   ```
+הרצת האפליקציה:
 
-2. הפעלת הסביבה:
-   ```bash
-   cd docker-compose
-   docker-compose up -d
-   ```
+bash
+Copy
+Edit
+docker compose up --build -d
+בדיקת בריאות:
 
-3. גישה לאפליקציה:
-   ```
-   http://localhost:8080
-   ```
+bash
+Copy
+Edit
+curl http://localhost:5000/health
+התגובה צריכה להיות "OK".
 
----
+צפייה בממשק בדפדפן: פתחי http://localhost:5000/.
 
-## ניתובים (Routes)
+פעולות API לדוגמה:
 
-1. עמוד הבית
-- URL: `/`
-- Method: GET
-- מה עושה: מציג את כל המשימות עם כפתורים ל־Toggle ול־Delete.
-- קישור בדפדפן: http://localhost:5000/
+קבלת רשימת משימות: curl http://localhost:5000/
 
-2. בדיקת בריאות (Health Check)
-- URL: `/health`
-- Method: GET
-- מה עושה: בודק אם השרת וה־DB פועלים.
-- דוגמה ב־curl:
-  curl http://localhost:5000/health
-- קישור בדפדפן: http://localhost:5000/health
+הוספת משימה: curl -X POST -d "title=משימה חדשה" http://localhost:5000/add
 
-3. הוספת משימה
-- URL: `/add`
-- Method: POST
-- פרמטרים: title (שם המשימה)
-- מה עושה: מוסיף משימה חדשה למסד הנתונים.
-- דוגמה ב־curl:
-  curl -X POST -d "title=משימה חדשה" http://localhost:5000/add
+סימון משימה כהושלמה: curl http://localhost:5000/toggle/1
 
-4. שינוי סטטוס משימה (Toggle)
-- URL: `/toggle/<task_id>`
-- Method: GET
-- מה עושה: משנה את סטטוס ההשלמה של המשימה.
-- דוגמה ב־curl:
-  curl http://localhost:5000/toggle/1
-- קישור בדפדפן: http://localhost:5000/toggle/1
+מחיקת משימה: curl http://localhost:5000/delete/1
 
-5. מחיקת משימה
-- URL: `/delete/<task_id>`
-- Method: GET
-- מה עושה: מוחק את המשימה עם ה־ID הנתון.
-- דוגמה ב־curl:
-  curl http://localhost:5000/delete/1
-- קישור בדפדפן: http://localhost:5000/delete/1
+CI/CD
+הפרויקט כולל pipeline עם 6 שלבים ב-GitHub Actions: Build, Test, Package, E2E Test, Push ל-DockerHub ו-Deploy ל-Killercoda. צילומי מסך של pipeline מוצלחת ושורת הפקודות יכולים להציג את הצלחת כל השלבים.
 
+בדיקות מקומיות
+Health check: curl http://localhost:5000/health מחזיר "OK".
 
+CRUD פונקציות נבדקות עם פקודות curl.
 
----
+ווידוא שמירה על נתונים אחרי הפסקת הקונטיינרים והפעלתם מחדש.
 
-## 📂 מבנה הפרויקט
-```
+שימוש ב-Docker Compose
+קובץ docker-compose.yml מגדיר שלושה קונטיינרים: mysql, flask app ו-network.
+
+Volume של MySQL שומר את הנתונים גם לאחר restart.
+
+מבנה התיקיות
+swift
+Copy
+Edit
 flask-task-manager/
 ├── .github/workflows/
-│ └── ci-cd-pipeline.yml
+│   └── ci-cd-pipeline.yml
 ├── static/
-│ └── style.css
+│   └── style.css
 ├── templates/
-│ └── tasks.html
+│   └── tasks.html
 ├── app.py
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
 └── README.md
-```
+סיכום
+הפרויקט מדגים יכולת לפתח אפליקציה מלאה עם Flask, חיבור למסד נתונים, שימוש ב-Docker Compose, וליישם תהליכי CI/CD מקצועיים. כל הניתובים, ה-API וה-UI נבדקו ופועלים בהצלחה. נלמדו מיומנויות עבודה עם multi-tier architecture, persistent storage, ו-automation עם GitHub Actions.
 
----
-
-## 🛠️ טכנולוגיות בשימוש
-- **Python 3 + Flask**
-- **MySQL 8**
-- **Nginx**
-- **Docker & Docker Compose**
-
----
-
-## 📖 סיכום
-הפרויקט מדגים כיצד ניתן לבנות אפליקציית ווב בסיסית עם מסד נתונים אמיתי,  
-לעטוף אותה בסביבה מודולרית בעזרת Docker Compose,  
-ולבדוק אותה באמצעות פקודות curl פשוטות מקצה לקצה.
+markdown
+Copy
+Edit
