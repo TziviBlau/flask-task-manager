@@ -78,4 +78,3 @@ def toggle_task(task_id):
     cnx.close()
     return redirect(url_for('index'))
 
-@a
