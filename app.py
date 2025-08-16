@@ -59,6 +59,11 @@ def add_task():
         cnx.close()
     return redirect(url_for('index'))
 
+@app.route("/health")
+def health():
+    return {"status": "OK"}, 200
+
+
 @app.route('/toggle/<int:task_id>')
 def toggle_task(task_id):
     cnx = get_db_connection()
