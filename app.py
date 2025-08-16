@@ -37,6 +37,7 @@ def init_db():
     cursor.close()
     cnx.close()
 
+# Health check שמוודא שה־DB מוכן
 @app.route('/health')
 def health():
     try:
@@ -87,10 +88,6 @@ def delete_task(task_id):
     cursor.close()
     cnx.close()
     return redirect(url_for('index'))
-
-@app.route('/health')
-def health():
-    return "OK", 200
 
 if __name__ == '__main__':
     init_db()
