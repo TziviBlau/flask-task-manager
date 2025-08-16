@@ -37,6 +37,15 @@ def init_db():
     cursor.close()
     cnx.close()
 
+@app.route('/health')
+def health():
+    try:
+        cnx = get_db_connection()
+        cnx.close()
+        return "OK", 200
+    except:
+        return "DB not ready", 500
+
 @app.route('/')
 def index():
     cnx = get_db_connection()
