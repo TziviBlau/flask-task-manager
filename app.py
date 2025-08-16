@@ -6,8 +6,8 @@ from mysql.connector import Error
 
 app = Flask(__name__)
 
-# פונקציה להתחברות ל־DB עם retry ארוך עד שהשרת מוכן
-def get_db_connection(retries=20, delay=3):
+# פונקציה להתחברות ל־DB עם retries
+def get_db_connection(retries=5, delay=3):
     for attempt in range(retries):
         try:
             connection = mysql.connector.connect(
@@ -37,7 +37,6 @@ def init_db():
     cursor.close()
     cnx.close()
 
-# Health check שמוודא שה־DB מוכן
 @app.route('/health')
 def health():
     try:
@@ -79,16 +78,4 @@ def toggle_task(task_id):
     cnx.close()
     return redirect(url_for('index'))
 
-@app.route('/delete/<int:task_id>')
-def delete_task(task_id):
-    cnx = get_db_connection()
-    cursor = cnx.cursor()
-    cursor.execute("DELETE FROM tasks WHERE id = %s", (task_id,))
-    cnx.commit()
-    cursor.close()
-    cnx.close()
-    return redirect(url_for('index'))
-
-if __name__ == '__main__':
-    init_db()
-    app.run(host='0.0.0.0', port=5000)
+@a
