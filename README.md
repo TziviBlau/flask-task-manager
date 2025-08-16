@@ -106,7 +106,7 @@ curl http://localhost:5000/health
 - ווידוא שמירה על נתונים אחרי הפסקת הקונטיינרים והפעלתם מחדש.
 
 ---
----
+
 ## 📝 Reflection
 
 בפרויקט **Flask Task Manager** פיתחתי אפליקציה לניהול משימות עם יכולות **CRUD מלאות** ו־**API REST** תוך שימוש ב־**Flask**, **MySQL** ו־**Docker Compose**.  
@@ -118,6 +118,8 @@ curl http://localhost:5000/health
 ניצלתי **AI** כעוזר בבניית קוד, כתיבת ניתובים והכוונה כללית במבנה הפרויקט.  
 
 הפרויקט העניק לי ניסיון מעשי ב־**CI/CD**, **Docker Compose**, ניהול מסדי נתונים, וכתיבת קוד מאורגן ובר השגה. הוא מדגים **יכולת עבודה מקצועית עם כלים מודרניים** ויכולת **ניהול פיתוח מבוסס ברנצ'ים**.
+
+
 ---
 
 ## 💡 סיכום
