@@ -34,7 +34,7 @@
 ### שלבים
 1. שיבוט הפרויקט:
 ```bash
-git clone https://github.com/your-username/flask-task-manager.git
+git clone https://github.com/tziviblau/flask-task-manager.git
 cd flask-task-manager
 ```
 
@@ -91,7 +91,9 @@ flask-task-manager/
 ---
 
 ## ⚙️ CI/CD
-הפרויקט כולל **pipeline עם 6 שלבים** ב-GitHub Actions: Build, Test, Package, E2E Test, Push ל-DockerHub ו-Deploy ל-Killercoda. ניתן להראות צילומי מסך של ה-pipeline המוצלחת כדי להציג את הצלחת כל השלבים.
+הפרויקט כולל **pipeline עם 6 שלבים** ב-GitHub Actions: Build, Test, Package, E2E Test, Push ל-DockerHub ו-Deploy ל-Killercoda.
+<img width="1919" height="815" alt="צילום מסך 2025-08-16 220154" src="https://github.com/user-attachments/assets/c7e9433d-298b-436a-a87c-e94e4314e93d" />
+
 
 ---
 
