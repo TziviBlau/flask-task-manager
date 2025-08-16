@@ -59,11 +59,6 @@ def add_task():
         cnx.close()
     return redirect(url_for('index'))
 
-@app.route("/health")
-def health():
-    return {"status": "OK"}, 200
-
-
 @app.route('/toggle/<int:task_id>')
 def toggle_task(task_id):
     cnx = get_db_connection()
@@ -73,17 +68,6 @@ def toggle_task(task_id):
     cursor.close()
     cnx.close()
     return redirect(url_for('index'))
-
-@app.route("/api/tasks")
-def api_tasks():
-    cnx = get_db_connection()
-    cursor = cnx.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM tasks ORDER BY id DESC")
-    tasks = cursor.fetchall()
-    cursor.close()
-    cnx.close()
-    return {"tasks": tasks}, 200
-
 
 @app.route('/delete/<int:task_id>')
 def delete_task(task_id):
