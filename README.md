@@ -49,25 +49,47 @@
 
 ---
 
-## 🧪 בדיקות עם curl
-במקום טסטים מורכבים, ניתן לבדוק את האפליקציה בפקודות curl פשוטות:
+## ניתובים (Routes)
 
-```bash
-# בדיקת בריאות
-curl -f http://localhost:8080/health
+1. עמוד הבית
+- URL: `/`
+- Method: GET
+- מה עושה: מציג את כל המשימות עם כפתורים ל־Toggle ול־Delete.
+- קישור בדפדפן: http://localhost:5000/
 
-# קבלת רשימת משימות
-curl -f http://localhost:8080/api/tasks
+2. בדיקת בריאות (Health Check)
+- URL: `/health`
+- Method: GET
+- מה עושה: בודק אם השרת וה־DB פועלים.
+- דוגמה ב־curl:
+  curl http://localhost:5000/health
+- קישור בדפדפן: http://localhost:5000/health
 
-# הוספת משימה
-curl -X POST -H "Content-Type: application/json"     -d '{"title": "לסיים פרויקט", "completed": false}'     http://localhost:8080/api/tasks
+3. הוספת משימה
+- URL: `/add`
+- Method: POST
+- פרמטרים: title (שם המשימה)
+- מה עושה: מוסיף משימה חדשה למסד הנתונים.
+- דוגמה ב־curl:
+  curl -X POST -d "title=משימה חדשה" http://localhost:5000/add
 
-# סימון משימה כהושלמה
-curl -X PUT -H "Content-Type: application/json"     -d '{"completed": true}'     http://localhost:8080/api/tasks/1
+4. שינוי סטטוס משימה (Toggle)
+- URL: `/toggle/<task_id>`
+- Method: GET
+- מה עושה: משנה את סטטוס ההשלמה של המשימה.
+- דוגמה ב־curl:
+  curl http://localhost:5000/toggle/1
+- קישור בדפדפן: http://localhost:5000/toggle/1
 
-# מחיקת משימה
-curl -X DELETE http://localhost:8080/api/tasks/1
-```
+5. מחיקת משימה
+- URL: `/delete/<task_id>`
+- Method: GET
+- מה עושה: מוחק את המשימה עם ה־ID הנתון.
+- דוגמה ב־curl:
+  curl http://localhost:5000/delete/1
+- קישור בדפדפן: http://localhost:5000/delete/1
+
+
 
 ---
 
