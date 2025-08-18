@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: flask-app
+  namespace: flask-task
 spec:
   replicas: 2
   selector:
@@ -13,10 +14,16 @@ spec:
         app: flask-app
     spec:
       containers:
-        - name: flask-app
-          image: tziviblau/flask-task-manager:latest 
-          ports:
-            - containerPort: 5000
-          envFrom:
-            - configMapRef:
-                name: flask-config
+      - name: flask-app
+        image: tziviblau/flask-task-manager:latest
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - configMapRef:
+            name: flask-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password # This must match the key in the secret
