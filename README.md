@@ -1,126 +1,150 @@
-# Flask Task Manager
+# 📌 Flask Task Manager
 
-יישום לניהול משימות (To-Do / Task Manager) שנבנה עם **Flask** ו-**MySQL** ומופעל באמצעות **Docker Compose**. האפליקציה מאפשרת ליצור, לצפות, לעדכן ולמחוק משימות (CRUD) בצורה פשוטה ואינטואיטיבית. היא כוללת ממשק אינטרנטי בסיסי, **API REST** עם נקודות קצה לפעולות על המשימות ובדיקת בריאות (Health Check) עם התחברות למסד הנתונים. 
-
----
-
-## ✨ פיצ'רים
-- הוספה, עריכה ומחיקה של משימות
-- סימון משימה כהושלמה
-- ממשק HTML/CSS בסיסי
-- API REST עם נקודות קצה:
-  - `GET /` – קבלת רשימת כל המשימות
-  - `POST /add` – הוספת משימה חדשה
-  - `GET /toggle/<id>` – סימון משימה כהושלמה/לא מושלמת
-  - `GET /delete/<id>` – מחיקת משימה
-- בדיקת בריאות במסד הנתונים: `GET /health`
-- תמיכה בהרצה מלאה עם Docker Compose
+יישום לניהול משימות (**Task Manager**) שנבנה עם **Flask** ו־**MySQL**, ומשתמש ב־**Docker Compose**, **Kubernetes** ו־**CI/CD (GitHub Actions)** לניהול, פרישה ובדיקות.  
+האפליקציה מאפשרת ניהול משימות עם יכולות CRUD מלאות: יצירה, צפייה, עדכון ומחיקה.
 
 ---
 
-## 🏗️ ארכיטקטורה
-המערכת בנויה משלוש שכבות:  
-1. **MySQL** – מסד הנתונים עם **volume קבוע** לשמירה על נתונים גם אחרי הפעלה מחדש של הקונטיינרים.  
-2. **Flask App** – שרת האפליקציה שמבצע את כל פעולות CRUD ומאזין ב־5000.  
-3. **Nginx** – משמש כ-reverse proxy ומאזן עומסים, מאזין ב־8080.
+## ✨ פיצ'רים  
+- ✅ הוספה, עריכה ומחיקה של משימות  
+- ✅ סימון משימות כהושלמו  
+- ✅ ממשק אינטרנטי בסיסי עם HTML/CSS  
+- ✅ API REST עם נקודות קצה עיקריות: `GET`, `POST`, `PUT`, `DELETE`  
+- ✅ בדיקת בריאות (Health Check) עם התחברות למסד הנתונים  
+- ✅ תמיכה מלאה ב־Docker להרצה מקומית  
+- ✅ פרישה מלאה על Kubernetes עם StatefulSet עבור MySQL ו־Persistent Volume  
+- ✅ בדיקות התמדה של נתונים לאחר אתחול מחדש של הפודים  
 
 ---
 
-## 🚀 התקנה והרצה
-### דרישות
-- Docker
-- Docker Compose
+## 🏗️ ארכיטקטורה  
+המערכת מבוססת על 3 שכבות עיקריות:  
 
-### שלבים
-1. שיבוט הפרויקט:
-```bash
-git clone https://github.com/tziviblau/flask-task-manager.git
-cd flask-task-manager
-```
+1. **Flask App** – שרת האפליקציה (מאזין בפורט 5000)  
+2. **MySQL** – מסד נתונים עם Persistent Volume לשמירה על נתונים  
+3. **Kubernetes** – פרישה מלאה הכוללת Deployments, Services ו־StatefulSet  
 
-2. הרצת האפליקציה:
-```bash
-docker compose up --build -d
-```
+### תרשים ארכיטקטורה (ASCII)  
 
-3. בדיקת בריאות:
-```bash
-curl http://localhost:5000/health
 ```
-התשובה צריכה להיות `"OK"`.
-
-4. צפייה בממשק בדפדפן:  
-[http://localhost:5000/](http://localhost:5000/)
-
-5. פעולות API נוספות:
-- קבלת רשימת משימות:
-```bash
-curl http://localhost:5000/
-```
-- הוספת משימה:
-```bash
-curl -X POST -d "title=משימה חדשה" http://localhost:5000/add
-```
-- סימון משימה כהושלמה:
-```bash
-curl http://localhost:5000/toggle/1
-```
-- מחיקת משימה:
-```bash
-curl http://localhost:5000/delete/1
+           +-------------------+
+           |   User / Browser  |
+           +-------------------+
+                    |
+                    v
+           +-------------------+
+           |    Flask App      |
+           | (Deployment + SVC)|
+           +-------------------+
+                    |
+                    v
+           +-------------------+
+           |      MySQL        |
+           | (StatefulSet + PV)|
+           +-------------------+
 ```
 
 ---
 
-## 📁 מבנה התיקיות
+## 🚀 התקנה והרצה  
+
+### דרישות מקדימות  
+- Docker  
+- Docker Compose  
+- kubectl (לפרישה ל־Kubernetes / Killercoda)  
+
+### הרצה מקומית עם Docker Compose  
+`git clone https://github.com/your-username/flask-task-manager.git`  
+`cd flask-task-manager`  
+`docker compose up --build -d`  
+
+בדיקת בריאות:  
+`curl http://localhost:5000/health`  
+
+כניסה לדפדפן:  
+`http://localhost:5000/`  
+
+---
+
+## ☸️ פרישה ל-Kubernetes / Killercoda  
+
+עברתי לבראנץ' **add-k8s-files** לצורך הוספת כל קבצי Kubernetes.  
+כל הקבצים לפרישה נמצאים בתיקיית **k8s/**:  
+
+- namespace.yaml  
+- flask-configmap.yaml  
+- flask-deployment.yaml  
+- flask-service.yaml  
+- mysql-deployment.yaml  
+- mysql-pvc.yaml  
+- mysql-secret.yaml  
+- mysql-service.yaml  
+
+להרצה בסביבת Kubernetes:  
+`kubectl apply -f k8s/`  
+
+בדיקת השירותים:  
+`kubectl get svc -n flask-task`  
+
+---
+
+## 🔄 תהליך CI/CD  
+
+הוגדר **צינור CI/CD** באמצעות **GitHub Actions**, הכולל שלבים:  
+
+1. **Build** – בניית האפליקציה ובדיקת התקנות  
+2. **Lint/Test** – בדיקות אוטומטיות  
+3. **Docker Build** – בניית Docker Image  
+4. **Push to DockerHub** – העלאת התמונה ל־DockerHub  
+5. **Deploy** – פריסה אוטומטית לסביבת Kubernetes  
+6. **Verify** – בדיקת Health Check אחרי פריסה  
+
+📸 **צילומי מסך**:  
+- תהליך ה־CI/CD בגיטהאב – כל השלבים ירוקים  
+- האפליקציה רצה בדפדפן ומציגה רשימת משימות  
+- בדיקה ב־kubectl שה־StatefulSet פעיל והנתונים נשמרים  
+
+---
+
+## 🧩 שימוש ב-AI  
+
+במהלך פיתוח הפרויקט נעזרתי בכלים מבוססי **AI** לשיפור הקוד, יצירת קבצי Kubernetes, כתיבת CI/CD וכתיבת README מקצועי.  
+
+---
+
+## 📝 Reflection  
+
+- למדתי איך משלבים בין **Flask**, **MySQL**, **Docker**, **Kubernetes** ו־**CI/CD** בפרויקט אחד מלא.  
+- ההתמודדות העיקרית הייתה בהבנת **Persistent Volumes** ב־Kubernetes כדי להבטיח שהנתונים במסד לא נמחקים לאחר Restart.  
+- הפעלת **Health Check** הייתה חשובה לוודא שהאפליקציה באמת תקינה.  
+- הפרויקט המחיש איך כלי DevOps עוזרים לבנות **תהליך עבודה מסודר** – מהפיתוח ועד לפריסה אמיתית.  
+
+---
+
+## 📂 מבנה הפרויקט  
+
 ```
 flask-task-manager/
-├── .github/workflows/
-│   └── ci-cd-pipeline.yml
-├── static/
-│   └── style.css
-├── templates/
-│   └── tasks.html
+│
 ├── app.py
-├── Dockerfile
-├── docker-compose.yml
 ├── requirements.txt
-└── README.md
+├── Dockerfile
+├── docker-compose.yaml
+├── k8s/
+│   ├── namespace.yaml
+│   ├── flask-configmap.yaml
+│   ├── flask-deployment.yaml
+│   ├── flask-service.yaml
+│   ├── mysql-deployment.yaml
+│   ├── mysql-pvc.yaml
+│   ├── mysql-secret.yaml
+│   └── mysql-service.yaml
+└── .github/workflows/
+    └── ci-cd.yaml
 ```
 
 ---
 
-## ⚙️ CI/CD
-הפרויקט כולל **pipeline עם 6 שלבים** ב-GitHub Actions: Build, Test, Package, E2E Test, Push ל-DockerHub ו-Deploy ל-Killercoda.
-<img width="1919" height="815" alt="צילום מסך 2025-08-16 220154" src="https://github.com/user-attachments/assets/c7e9433d-298b-436a-a87c-e94e4314e93d" />
+## ✅ סיכום  
 
-
----
-
-## ✅ בדיקות מקומיות
-- Health check:  
-```bash
-curl http://localhost:5000/health
-```
-- CRUD פונקציות נבדקות עם פקודות `curl`.  
-- ווידוא שמירה על נתונים אחרי הפסקת הקונטיינרים והפעלתם מחדש.
-
----
-
-## 📝 Reflection
-
-בפרויקט **Flask Task Manager** פיתחתי אפליקציה לניהול משימות עם יכולות **CRUD מלאות** ו־**API REST** תוך שימוש ב־**Flask**, **MySQL** ו־**Docker Compose**.  
-
-עבודה ב־Git בוצעה בצורה מסודרת על ידי שימוש ב־**ברנצ'ים נפרדים** לכל שלב:
-- **עיצוב הממשק (HTML/CSS)** – פותח בברנצ' ייעודי ומוזג למיין לאחר בדיקות.
-- **פיתוח ניתובים וה־API** – פותח בברנצ' נוסף ומוזג למיין בסיום הפונקציונליות.
-
-ניצלתי **AI** כעוזר בבניית קוד, כתיבת ניתובים והכוונה כללית במבנה הפרויקט.  
-
-הפרויקט העניק לי ניסיון מעשי ב־**CI/CD**, **Docker Compose**, ניהול מסדי נתונים, וכתיבת קוד מאורגן ובר השגה. הוא מדגים **יכולת עבודה מקצועית עם כלים מודרניים** ויכולת **ניהול פיתוח מבוסס ברנצ'ים**.
-
-
----
-
-## 💡 סיכום
-הפרויקט מדגים יכולת לפתח אפליקציה מלאה עם Flask, חיבור למסד נתונים, שימוש ב-Docker Compose, וליישם תהליכי CI/CD מקצועיים. כל הניתובים, ה-API וה-UI נבדקו ופועלים בהצלחה. נלמדו מיומנויות עבודה עם multi-tier architecture, persistent storage, ו-automation עם GitHub Actions.
+פרויקט **Flask Task Manager** הוא מימוש מלא של אפליקציה מבוססת Flask עם DB, כולל סביבה מקומית עם Docker, פרישה ב־Kubernetes, ותהליך CI/CD אוטומטי מלא.  
