@@ -5,6 +5,6 @@ metadata:
   namespace: flask-task
 data:
   FLASK_ENV: "production"
-  DB_HOST: "mysql"
-  DB_NAME: "tasksdb"
-  DB_USER: "root"
+  MYSQL_HOST: "mysql"
+  MYSQL_USER: "root"
+  MYSQL_DATABASE: "task_manager"
