@@ -19,23 +19,28 @@ spec:
         ports:
         - containerPort: 5000
         env:
-        - name: DB_HOST
+        - name: MYSQL_HOST
           valueFrom:
             configMapKeyRef:
               name: flask-config
-              key: DB_HOST
-        - name: DB_USER
+              key: MYSQL_HOST
+        - name: MYSQL_USER
           valueFrom:
             configMapKeyRef:
               name: flask-config
-              key: DB_USER
-        - name: DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: flask-config
-              key: DB_NAME
-        - name: DB_PASSWORD
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mysql-secret
               key: password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: flask-config
+              key: MYSQL_DATABASE
+        readinessProbe:
+          tcpSocket:
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
