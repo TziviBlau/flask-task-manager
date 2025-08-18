@@ -1,12 +1,15 @@
 name: CI/CD Pipeline
 
+# הפעלת הצינור באירועים של Push ו-Pull Request לענף הראשי 'main'
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
+# הגדרת כל השלבים (Jobs) בצינור
 jobs:
+  # שלב 1: בנייה (Build) - מתקין תלויות פייתון
   build:
     runs-on: ubuntu-latest
     steps:
@@ -21,6 +24,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+  # שלב 2: בדיקה (Test) - מריץ בדיקות יחידה
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -31,6 +35,7 @@ jobs:
       - name: Run unit tests
         run: pytest || echo "No tests found"
 
+  # שלב 3: פרסום (Publish) - בונה ושולח תמונת Docker ל-DockerHub
   build_and_push:
     runs-on: ubuntu-latest
     needs: test
@@ -50,3 +55,32 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/flask-task-manager:${{ github.sha }}
+
+  # שלב 4: פריסה (Deploy) - מדמה פריסה לקלאסטר
+  # שלב זה מוגדר כהדמיה מכיוון שאין גישה חיצונית לקלאסטר של Killercoda.
+  # במצב אמיתי, כאן היית משתמש בפקודות kubectl apply עם Kubeconfig אמיתי.
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - name: Simulate Deployment to Kubernetes
+        run: |
+          echo "Simulating deployment to Kubernetes cluster..."
+          echo "In a real-world scenario, the following commands would run:"
+          echo "# kubectl apply -f k8s/ --record"
+          echo "# kubectl wait --for=condition=ready pod -l app=flask-app -n flask-task --timeout=300s"
+          echo "Deployment simulation successful!"
+
+  # שלב 5: אימות (Verify) - מדמה בדיקת תקינות
+  # שלב זה גם מודמה כיוון שהגישה לאפליקציה לאחר הפריסה מוגבלת.
+  # במצב אמיתי, כאן היית מריץ בדיקות curl או בדיקות אינטגרציה אמיתיות.
+  verify:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Simulate Health Check and Verification
+        run: |
+          echo "Simulating application health check..."
+          echo "In a real-world scenario, the following would run:"
+          echo "# curl -f http://your-app-domain.com/api/tasks"
+          echo "Verification simulation successful! The pipeline has completed all 6 stages."
